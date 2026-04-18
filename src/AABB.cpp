@@ -4,37 +4,44 @@
 
 namespace fastgeom3d {
 
+/**
+ * @brief 軸平行境界ボックスを各軸の境界値から初期化する。
+ */
 AABB::AABB(double minX_, double minY_, double minZ_,
            double maxX_, double maxY_, double maxZ_) :
     minX(minX_), minY(minY_), minZ(minZ_),
     maxX(maxX_), maxY(maxY_), maxZ(maxZ_) {}
 
+/**
+ * @brief 中心座標と半サイズからAABBを生成する。
+ */
 AABB AABB::fromCenterHalfExtents(const Vec3& center, const Vec3& halfExtents) {
-    // center: AABBの中心座標
-    // halfExtents: 各軸方向の半拡張
     return AABB(
-        center.x - halfExtents.x, // minX
-        center.y - halfExtents.y, // minY
-        center.z - halfExtents.z, // minZ
-        center.x + halfExtents.x, // maxX
-        center.y + halfExtents.y, // maxY
-        center.z + halfExtents.z  // maxZ
+        center.x - halfExtents.x,
+        center.y - halfExtents.y,
+        center.z - halfExtents.z,
+        center.x + halfExtents.x,
+        center.y + halfExtents.y,
+        center.z + halfExtents.z
     );
 }
 
+/**
+ * @brief 3次元点群を包含する最小のAABBを生成する。
+ */
 AABB AABB::fromPoints(const std::vector<Vec3>& points) {
-    // points: AABBを計算する点のリスト
     if (points.empty()) {
         throw std::invalid_argument("points must not be empty");
     }
 
-    double minX = std::numeric_limits<double>::infinity(); // 最小x座標の初期値
-    double minY = std::numeric_limits<double>::infinity(); // 最小y座標の初期値
-    double minZ = std::numeric_limits<double>::infinity(); // 最小z座標の初期値
-    double maxX = -std::numeric_limits<double>::infinity(); // 最大x座標の初期値
-    double maxY = -std::numeric_limits<double>::infinity(); // 最大y座標の初期値
-    double maxZ = -std::numeric_limits<double>::infinity(); // 最大z座標の初期値
+    double minX = std::numeric_limits<double>::infinity();
+    double minY = std::numeric_limits<double>::infinity();
+    double minZ = std::numeric_limits<double>::infinity();
+    double maxX = -std::numeric_limits<double>::infinity();
+    double maxY = -std::numeric_limits<double>::infinity();
+    double maxZ = -std::numeric_limits<double>::infinity();
 
+    // 全点を一度走査して各軸の最小値と最大値を更新する。
     for (const auto& point : points) {
         minX = std::min(minX, point.x);
         minY = std::min(minY, point.y);
@@ -47,17 +54,20 @@ AABB AABB::fromPoints(const std::vector<Vec3>& points) {
     return AABB(minX, minY, minZ, maxX, maxY, maxZ);
 }
 
+/**
+ * @brief 2次元点群を包含する最小のAABBを生成する。
+ */
 AABB AABB::fromPoints2D(const std::vector<Vec2>& points) {
-    // points: 2D点のリスト
     if (points.empty()) {
         throw std::invalid_argument("points must not be empty");
     }
 
-    double minX = std::numeric_limits<double>::infinity(); // 最小x座標
-    double minY = std::numeric_limits<double>::infinity(); // 最小y座標
-    double maxX = -std::numeric_limits<double>::infinity(); // 最大x座標
-    double maxY = -std::numeric_limits<double>::infinity(); // 最大y座標
+    double minX = std::numeric_limits<double>::infinity();
+    double minY = std::numeric_limits<double>::infinity();
+    double maxX = -std::numeric_limits<double>::infinity();
+    double maxY = -std::numeric_limits<double>::infinity();
 
+    // 2D形状は Z=0 平面に固定して境界を集約する。
     for (const auto& point : points) {
         minX = std::min(minX, point.x);
         minY = std::min(minY, point.y);
@@ -68,15 +78,24 @@ AABB AABB::fromPoints2D(const std::vector<Vec2>& points) {
     return AABB(minX, minY, 0.0, maxX, maxY, 0.0);
 }
 
+/**
+ * @brief このボックス自身をAABBとして返す。
+ */
 AABB AABB::getAABB() const {
     return *this;
 }
 
+/**
+ * @brief 全境界値が厳密一致するかを判定する。
+ */
 bool AABB::operator==(const AABB& other) const {
     return minX == other.minX && minY == other.minY && minZ == other.minZ &&
            maxX == other.maxX && maxY == other.maxY && maxZ == other.maxZ;
 }
 
+/**
+ * @brief 全境界値の厳密一致に基づいて不一致を判定する。
+ */
 bool AABB::operator!=(const AABB& other) const {
     return !(*this == other);
 }

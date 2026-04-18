@@ -82,6 +82,22 @@ TEST(IntersectionsTests, CircleIntersectionCanChangeWithFloatingPointPrecision) 
     EXPECT_EQ(Intersections::intersectionType(a, b), Intersections::IntersectionType::TOUCH);
 }
 
+// 円対楕円のサンプル判定が楕円内に入るケースを検出できることを確認する。
+TEST(IntersectionsTests, CircleEllipseIntersection) {
+    Circle2D circle(Vec2(0.0, 0.0), 1.0);
+    Ellipse2D ellipse(Vec2(1.6, 0.0), 1.0, 0.75);
+
+    EXPECT_TRUE(Intersections::intersect(circle, ellipse));
+}
+
+// 円対楕円のサンプル判定が十分に離れたケースを非交差と判定することを確認する。
+TEST(IntersectionsTests, CircleEllipseNoIntersection) {
+    Circle2D circle(Vec2(0.0, 0.0), 1.0);
+    Ellipse2D ellipse(Vec2(4.0, 0.0), 1.0, 0.75);
+
+    EXPECT_FALSE(Intersections::intersect(circle, ellipse));
+}
+
 // 2つの四角形が一点で接する場合にTOUCHと判定されることを確認する。
 TEST(IntersectionsTests, QuadrilateralCornerTouchIntersection) {
     Quadrilateral2D a({
