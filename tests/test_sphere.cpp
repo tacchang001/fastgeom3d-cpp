@@ -3,6 +3,7 @@
 
 using namespace fastgeom3d;
 
+// 球の中心と半径がコンストラクタ引数通りに保持されることを確認する。
 TEST(SphereTests, Construction) {
     Sphere sphere(Vec3(1.0, 2.0, 3.0), 4.0);
     EXPECT_DOUBLE_EQ(sphere.center.x, 1.0);
@@ -11,6 +12,7 @@ TEST(SphereTests, Construction) {
     EXPECT_DOUBLE_EQ(sphere.radius, 4.0);
 }
 
+// 球のAABBが中心と半径から正しく計算されることを確認する。
 TEST(SphereTests, GetAABB) {
     Sphere sphere(Vec3(0.0, 0.0, 0.0), 2.0);
     AABB box = sphere.getAABB();

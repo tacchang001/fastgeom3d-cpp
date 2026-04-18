@@ -3,6 +3,7 @@
 
 using namespace fastgeom3d;
 
+// 円の中心と半径がコンストラクタ引数通りに保持されることを確認する。
 TEST(Circle2DTests, Construction) {
     Circle2D circle(Vec2(1.0, 2.0), 2.5);
     EXPECT_DOUBLE_EQ(circle.getCenter().x, 1.0);
@@ -10,11 +11,13 @@ TEST(Circle2DTests, Construction) {
     EXPECT_DOUBLE_EQ(circle.getRadius(), 2.5);
 }
 
+// 0以下の半径で円を作成すると例外が送出されることを確認する。
 TEST(Circle2DTests, ConstructionInvalidRadius) {
     EXPECT_THROW(Circle2D(Vec2(0.0, 0.0), 0.0), std::invalid_argument);
     EXPECT_THROW(Circle2D(Vec2(0.0, 0.0), -1.0), std::invalid_argument);
 }
 
+// 円のAABBが中心と半径から正しく計算されることを確認する。
 TEST(Circle2DTests, GetAABB) {
     Circle2D circle(Vec2(1.0, 2.0), 2.5);
     AABB box = circle.getAABB();
