@@ -1,15 +1,11 @@
 ﻿#include "fastgeom3d/Cylinder.h"
 #include "fastgeom3d/Circle2D.h"
-#include <stdexcept>
+#include "PrismSupport.h"
 
 namespace fastgeom3d {
 
 Cylinder::Cylinder(const Vec2& center, double radius, double height) :
-    Prism(Circle2D(center, radius), height), center(center), radius(radius) {
-    if (radius <= 0.0) {
-        throw std::invalid_argument("radius must be positive");
-    }
-}
+    center(center), radius(radius), height(height), aabb(detail::makePrismAABB(Circle2D(center, radius).getAABB(), height)) {}
 
 const Vec2& Cylinder::getCenter() const {
     return center;
@@ -17,6 +13,22 @@ const Vec2& Cylinder::getCenter() const {
 
 double Cylinder::getRadius() const {
     return radius;
+}
+
+double Cylinder::getHeight() const {
+    return height;
+}
+
+double Cylinder::getBottomZ() const {
+    return aabb.minZ;
+}
+
+double Cylinder::getTopZ() const {
+    return aabb.maxZ;
+}
+
+AABB Cylinder::getAABB() const {
+    return aabb;
 }
 
 } // namespace fastgeom3d

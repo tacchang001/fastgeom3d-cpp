@@ -5,8 +5,6 @@
 #include "fastgeom3d/Polygon2D.h"
 #include "fastgeom3d/Polyline.h"
 #include "fastgeom3d/Polyline2D.h"
-#include "fastgeom3d/Shape2D.h"
-#include "fastgeom3d/Shape3D.h"
 #include "fastgeom3d/Sphere.h"
 #include "fastgeom3d/Vec2.h"
 #include <algorithm>
@@ -130,10 +128,6 @@ bool segmentIntersectsEllipse(const Vec2& a, const Vec2& b, const Ellipse2D& ell
     return (t1 >= 0.0 && t1 <= 1.0) || (t2 >= 0.0 && t2 <= 1.0);
 }
 
-bool intersectPolylineShape(const Polyline& line, const Shape3D& shape) {
-    return Intersections::intersect(line.getAABB(), shape.getAABB());
-}
-
 } // namespace
 
 bool Intersections::intersect(const AABB& a, const AABB& b) {
@@ -146,39 +140,6 @@ bool Intersections::intersect(const Sphere& a, const Sphere& b) {
 
 bool Intersections::intersect(const AABB& box, const Sphere& s) {
     return intersectionType(box, s) != IntersectionType::NONE;
-}
-
-bool Intersections::intersect(const Shape3D& s1, const Shape3D& s2) {
-    const Shape2D* shape2D1 = dynamic_cast<const Shape2D*>(&s1); // s1がShape2Dかチェック
-    const Shape2D* shape2D2 = dynamic_cast<const Shape2D*>(&s2); // s2がShape2Dかチェック
-    if (shape2D1 != nullptr && shape2D2 != nullptr) {
-        return intersect(*shape2D1, *shape2D2);
-    }
-    return intersect(s1.getAABB(), s2.getAABB());
-}
-
-bool Intersections::intersect(const Shape2D& s1, const Shape2D& s2) {
-    if (const auto* line1 = dynamic_cast<const Polyline2D*>(&s1)) {
-        if (const auto* line2 = dynamic_cast<const Polyline2D*>(&s2)) return intersect(*line1, *line2);
-        if (const auto* circle = dynamic_cast<const Circle2D*>(&s2)) return intersect(*line1, *circle);
-        if (const auto* polygon = dynamic_cast<const Polygon2D*>(&s2)) return intersect(*line1, *polygon);
-        if (const auto* ellipse = dynamic_cast<const Ellipse2D*>(&s2)) return intersect(*line1, *ellipse);
-    } else if (const auto* circle1 = dynamic_cast<const Circle2D*>(&s1)) {
-        if (const auto* line = dynamic_cast<const Polyline2D*>(&s2)) return intersect(*line, *circle1);
-        if (const auto* circle2 = dynamic_cast<const Circle2D*>(&s2)) return intersect(*circle1, *circle2);
-        if (const auto* polygon = dynamic_cast<const Polygon2D*>(&s2)) return intersect(*polygon, *circle1);
-        if (const auto* ellipse = dynamic_cast<const Ellipse2D*>(&s2)) return intersect(*circle1, *ellipse);
-    } else if (const auto* polygon1 = dynamic_cast<const Polygon2D*>(&s1)) {
-        if (const auto* line = dynamic_cast<const Polyline2D*>(&s2)) return intersect(*line, *polygon1);
-        if (const auto* circle = dynamic_cast<const Circle2D*>(&s2)) return intersect(*polygon1, *circle);
-        if (const auto* polygon2 = dynamic_cast<const Polygon2D*>(&s2)) return intersect(*polygon1, *polygon2);
-        if (const auto* ellipse = dynamic_cast<const Ellipse2D*>(&s2)) return intersect(*polygon1, *ellipse);
-    } else if (const auto* ellipse1 = dynamic_cast<const Ellipse2D*>(&s1)) {
-        if (const auto* line = dynamic_cast<const Polyline2D*>(&s2)) return intersect(*line, *ellipse1);
-        if (const auto* circle = dynamic_cast<const Circle2D*>(&s2)) return intersect(*circle, *ellipse1);
-        if (const auto* polygon = dynamic_cast<const Polygon2D*>(&s2)) return intersect(*polygon, *ellipse1);
-    }
-    return intersect(s1.getAABB(), s2.getAABB());
 }
 
 bool Intersections::intersect(const Polyline2D& line, const Polyline2D& other) {
@@ -210,9 +171,8 @@ bool Intersections::intersect(const Polyline2D& line, const Circle2D& circle) {
     return false;
 }
 
-bool Intersections::intersect(const Polyline2D& line, const Polygon2D& polygon) {
+bool Intersections::intersectPolylineWithPolygonVertices(const Polyline2D& line, const std::vector<Vec2>& vertices) {
     const auto& points = line.getPoints(); // ラインの点リスト
-    const auto& vertices = polygon.getVertices(); // ポリゴンの頂点リスト
     for (std::size_t i = 1; i < points.size(); ++i) {
         const Vec2& a = points[i - 1]; // セグメントの始点
         const Vec2& b = points[i]; // セグメントの終点
@@ -226,11 +186,15 @@ bool Intersections::intersect(const Polyline2D& line, const Polygon2D& polygon) 
         }
     }
     for (const auto& point : points) {
-        if (pointInPolygon(point, polygon)) {
+        if (pointInPolygon(point, Polygon2D(vertices))) {
             return true;
         }
     }
     return false;
+}
+
+bool Intersections::intersect(const Polyline2D& line, const Polygon2D& polygon) {
+    return intersectPolylineWithPolygonVertices(line, polygon.getVertices());
 }
 
 bool Intersections::intersect(const Circle2D& a, const Circle2D& b) {
@@ -238,11 +202,10 @@ bool Intersections::intersect(const Circle2D& a, const Circle2D& b) {
     return squaredDistance(a.getCenter(), b.getCenter()) <= radiusSum * radiusSum;
 }
 
-bool Intersections::intersect(const Polygon2D& polygon, const Circle2D& circle) {
-    if (pointInPolygon(circle.getCenter(), polygon)) {
+bool Intersections::intersectPolygonWithCircleVertices(const std::vector<Vec2>& vertices, const Circle2D& circle) {
+    if (pointInPolygon(circle.getCenter(), Polygon2D(vertices))) {
         return true;
     }
-    const auto& vertices = polygon.getVertices(); // ポリゴンの頂点リスト
     for (std::size_t i = 1; i < vertices.size(); ++i) {
         if (segmentIntersectsCircle(vertices[i - 1], vertices[i], circle.getCenter(), circle.getRadius())) {
             return true;
@@ -251,9 +214,11 @@ bool Intersections::intersect(const Polygon2D& polygon, const Circle2D& circle) 
     return segmentIntersectsCircle(vertices[vertices.size() - 1], vertices[0], circle.getCenter(), circle.getRadius());
 }
 
-bool Intersections::intersect(const Polygon2D& a, const Polygon2D& b) {
-    const auto& verticesA = a.getVertices(); // Aの頂点リスト
-    const auto& verticesB = b.getVertices(); // Bの頂点リスト
+bool Intersections::intersect(const Polygon2D& polygon, const Circle2D& circle) {
+    return intersectPolygonWithCircleVertices(polygon.getVertices(), circle);
+}
+
+bool Intersections::intersectPolygonVertices(const std::vector<Vec2>& verticesA, const std::vector<Vec2>& verticesB) {
     for (std::size_t i = 1; i < verticesA.size(); ++i) {
         const Vec2& a1 = verticesA[i - 1]; // Aのセグメント始点
         const Vec2& a2 = verticesA[i]; // Aのセグメント終点
@@ -266,10 +231,14 @@ bool Intersections::intersect(const Polygon2D& a, const Polygon2D& b) {
             return true;
         }
     }
-    if (pointInPolygon(verticesA[0], b)) {
+    if (pointInPolygon(verticesA[0], Polygon2D(verticesB))) {
         return true;
     }
-    return pointInPolygon(verticesB[0], a);
+    return pointInPolygon(verticesB[0], Polygon2D(verticesA));
+}
+
+bool Intersections::intersect(const Polygon2D& a, const Polygon2D& b) {
+    return intersectPolygonVertices(a.getVertices(), b.getVertices());
 }
 
 bool Intersections::intersect(const Polyline2D& line, const Ellipse2D& ellipse) {
@@ -303,8 +272,7 @@ bool Intersections::intersect(const Circle2D& circle, const Ellipse2D& ellipse) 
     return false;
 }
 
-bool Intersections::intersect(const Polygon2D& polygon, const Ellipse2D& ellipse) {
-    const auto& vertices = polygon.getVertices(); // ポリゴンの頂点リスト
+bool Intersections::intersectPolygonWithEllipseVertices(const std::vector<Vec2>& vertices, const Ellipse2D& ellipse) {
     for (std::size_t i = 1; i < vertices.size(); ++i) {
         if (segmentIntersectsEllipse(vertices[i - 1], vertices[i], ellipse)) {
             return true;
@@ -316,66 +284,8 @@ bool Intersections::intersect(const Polygon2D& polygon, const Ellipse2D& ellipse
     return pointInEllipse(vertices[0], ellipse);
 }
 
-bool Intersections::intersectsAny(const Polyline& line, const std::vector<const Shape3D*>& shapes) {
-    for (const Shape3D* shape : shapes) {
-        if (shape != nullptr && intersect(line, *shape)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Intersections::intersectsAny(const Polyline& line1, const Polyline& line2, const std::vector<const Shape3D*>& shapes) {
-    for (const Shape3D* shape : shapes) {
-        if (shape != nullptr && (intersect(line1, *shape) || intersect(line2, *shape))) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Intersections::intersectsAny(const std::vector<Polyline>& lines, const std::vector<const Shape3D*>& shapes) {
-    for (const Shape3D* shape : shapes) {
-        if (shape == nullptr) {
-            continue;
-        }
-        for (const Polyline& line : lines) {
-            if (intersect(line, *shape)) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-std::vector<const Shape3D*> Intersections::intersectingShapes(const Polyline& line, const std::vector<const Shape3D*>& shapes) {
-    std::vector<const Shape3D*> result; // 交差するシェイプのリスト
-    for (const Shape3D* shape : shapes) {
-        if (shape != nullptr && intersect(line, *shape)) {
-            result.push_back(shape);
-        }
-    }
-    return result;
-}
-
-std::vector<const Shape3D*> Intersections::intersectingShapes(const std::vector<Polyline>& lines, const std::vector<const Shape3D*>& shapes) {
-    std::vector<const Shape3D*> result; // 交差するシェイプのリスト
-    for (const Shape3D* shape : shapes) {
-        if (shape == nullptr) {
-            continue;
-        }
-        for (const Polyline& line : lines) {
-            if (intersect(line, *shape)) {
-                result.push_back(shape);
-                break;
-            }
-        }
-    }
-    return result;
-}
-
-Intersections::IntersectionType Intersections::intersectionType(const Shape3D& s1, const Shape3D& s2) {
-    return intersectionType(s1.getAABB(), s2.getAABB());
+bool Intersections::intersect(const Polygon2D& polygon, const Ellipse2D& ellipse) {
+    return intersectPolygonWithEllipseVertices(polygon.getVertices(), ellipse);
 }
 
 Intersections::IntersectionType Intersections::intersectionType(const AABB& a, const AABB& b) {

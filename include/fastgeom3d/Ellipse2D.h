@@ -1,7 +1,7 @@
 #ifndef FASTGEOM3D_ELLIPSE2D_H
 #define FASTGEOM3D_ELLIPSE2D_H
 
-#include "fastgeom3d/Shape2D.h"
+#include "fastgeom3d/AABB.h"
 #include "fastgeom3d/Vec2.h"
 
 namespace fastgeom3d {
@@ -9,9 +9,9 @@ namespace fastgeom3d {
 /**
  * @brief 2D楕円を表すクラス。
  *
- * Shape2Dを継承し、中心座標とx/y方向の半径を持つ楕円を表現します。
+ * 中心座標とx/y方向の半径を持つ2D楕円を表現します。
  */
-class Ellipse2D final : public Shape2D {
+class Ellipse2D final {
 public:
     /**
      * @brief Ellipse2Dのコンストラクタ。
@@ -49,7 +49,7 @@ public:
      *
      * @return AABBオブジェクト。
      */
-    AABB getAABB() const override;
+    AABB getAABB() const;
 
 private:
     /** @brief 楕円の中心座標。 */

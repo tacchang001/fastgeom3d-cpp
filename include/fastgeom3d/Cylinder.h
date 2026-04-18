@@ -1,7 +1,7 @@
 #ifndef FASTGEOM3D_CYLINDER_H
 #define FASTGEOM3D_CYLINDER_H
 
-#include "fastgeom3d/Prism.h"
+#include "fastgeom3d/AABB.h"
 #include "fastgeom3d/Vec2.h"
 
 namespace fastgeom3d {
@@ -9,9 +9,9 @@ namespace fastgeom3d {
 /**
  * @brief 円柱を表すクラス。
  *
- * Prismを継承し、底面が円である3D形状を表現します。
+ * 底面が円である3D形状を表現します。
  */
-class Cylinder final : public Prism {
+class Cylinder final {
 public:
     /**
      * @brief Cylinderのコンストラクタ。
@@ -37,11 +37,23 @@ public:
      */
     double getRadius() const;
 
+    double getHeight() const;
+
+    double getBottomZ() const;
+
+    double getTopZ() const;
+
+    AABB getAABB() const;
+
 private:
     /** @brief 円柱の底面の中心座標。 */
     const Vec2 center;
     /** @brief 円柱の半径。 */
     const double radius;
+    /** @brief 円柱の高さ。 */
+    const double height;
+    /** @brief 円柱のAABB。 */
+    const AABB aabb;
 };
 
 } // namespace fastgeom3d

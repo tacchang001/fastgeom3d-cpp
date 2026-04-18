@@ -27,8 +27,8 @@ add_library(fastgeom3d
   src/Triangle2D.cpp
   src/Quadrilateral2D.cpp
   src/AABB.cpp
-  src/Prism.cpp
   src/PolygonalPrism.cpp
+  src/PrismSupport.cpp
   src/Cylinder.cpp
   src/EllipticalCylinder.cpp
   src/TriangularPrism.cpp
@@ -51,8 +51,6 @@ set(FASTGEOM3D_PUBLIC_HEADERS
   include/fastgeom3d/algorithms.h
   include/fastgeom3d/Vec2.h
   include/fastgeom3d/Vec3.h
-  include/fastgeom3d/Shape3D.h
-  include/fastgeom3d/Shape2D.h
   include/fastgeom3d/AABB.h
   include/fastgeom3d/Circle2D.h
   include/fastgeom3d/Ellipse2D.h
@@ -61,7 +59,6 @@ set(FASTGEOM3D_PUBLIC_HEADERS
   include/fastgeom3d/Triangle2D.h
   include/fastgeom3d/Quadrilateral2D.h
   include/fastgeom3d/AnnularSector2D.h
-  include/fastgeom3d/Prism.h
   include/fastgeom3d/PolygonalPrism.h
   include/fastgeom3d/TriangularPrism.h
   include/fastgeom3d/QuadrilateralPrism.h

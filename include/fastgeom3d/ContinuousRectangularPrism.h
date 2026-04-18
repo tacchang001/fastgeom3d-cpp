@@ -1,7 +1,6 @@
 #ifndef FASTGEOM3D_CONTINUOUSRECTANGULARPRISM_H
 #define FASTGEOM3D_CONTINUOUSRECTANGULARPRISM_H
 
-#include "fastgeom3d/Shape3D.h"
 #include "fastgeom3d/AABB.h"
 #include <vector>
 
@@ -10,9 +9,9 @@ namespace fastgeom3d {
 /**
  * @brief 連続した直方体プリズムを表すクラス。
  *
- * Shape3Dを継承し、連続した複数のAABBからなる3D形状を表現します。
+ * 連続した複数のAABBからなる3D形状を表現します。
  */
-class ContinuousRectangularPrism final : public Shape3D {
+class ContinuousRectangularPrism final {
 public:
     /**
      * @brief ContinuousRectangularPrismのコンストラクタ。
@@ -34,7 +33,7 @@ public:
      *
      * @return 全体を囲む軸平行境界ボックス。
      */
-    AABB getAABB() const override;
+    AABB getAABB() const;
 
 private:
     /** @brief 連続したAABBのベクトル。 */

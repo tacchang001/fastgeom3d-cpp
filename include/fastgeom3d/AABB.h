@@ -1,7 +1,6 @@
 #ifndef FASTGEOM3D_AABB_H
 #define FASTGEOM3D_AABB_H
 
-#include "fastgeom3d/Shape3D.h"
 #include "fastgeom3d/Vec3.h"
 #include "fastgeom3d/Vec2.h"
 #include <algorithm>
@@ -14,9 +13,9 @@ namespace fastgeom3d {
 /**
  * @brief 軸平行境界ボックス (Axis-Aligned Bounding Box) を表すクラス。
  *
- * Shape3Dを継承し、3D空間における軸平行な境界ボックスを表現します。
+ * 3D空間における軸平行な境界ボックスを表現します。
  */
-class AABB final : public Shape3D {
+class AABB final {
 public:
     /** @brief 最小x座標。 */
     double minX;
@@ -74,7 +73,7 @@ public:
      *
      * @return このAABBオブジェクト。
      */
-    AABB getAABB() const override;
+    AABB getAABB() const;
 
     /**
      * @brief 等価演算子。

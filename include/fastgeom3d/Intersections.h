@@ -1,19 +1,53 @@
 #ifndef FASTGEOM3D_INTERSECTIONS_H
 #define FASTGEOM3D_INTERSECTIONS_H
 
+#include "fastgeom3d/AABB.h"
+#include "fastgeom3d/Polygon2D.h"
+#include "fastgeom3d/Vec2.h"
+#include <type_traits>
 #include <vector>
 
 namespace fastgeom3d {
 
-class AABB;
 class Circle2D;
 class Ellipse2D;
-class Polygon2D;
 class Polyline;
 class Polyline2D;
-class Shape2D;
-class Shape3D;
+class Quadrilateral2D;
+class QuadrilateralPrism;
 class Sphere;
+class Triangle2D;
+class TriangularPrism;
+
+template <typename T, typename = void>
+struct IsAABBShape : std::false_type {};
+
+template <typename T>
+struct IsAABBShape<T, std::void_t<decltype(std::declval<const T&>().getAABB())>>
+    : std::bool_constant<std::is_same_v<decltype(std::declval<const T&>().getAABB()), AABB>> {};
+
+template <typename T>
+inline constexpr bool kIsAABBShape = IsAABBShape<T>::value;
+
+template <typename T>
+inline constexpr bool kIsSupported2DShape =
+    std::is_same_v<std::remove_cvref_t<T>, Circle2D> ||
+    std::is_same_v<std::remove_cvref_t<T>, Ellipse2D> ||
+    std::is_same_v<std::remove_cvref_t<T>, Polygon2D> ||
+    std::is_same_v<std::remove_cvref_t<T>, Triangle2D> ||
+    std::is_same_v<std::remove_cvref_t<T>, Quadrilateral2D> ||
+    std::is_same_v<std::remove_cvref_t<T>, Polyline2D>;
+
+template <typename T, typename = void>
+struct IsPolygonLike : std::false_type {};
+
+template <typename T>
+struct IsPolygonLike<T, std::void_t<
+    decltype(std::declval<const T&>().getVertices()),
+    decltype(std::declval<const T&>().getAABB())>> : std::true_type {};
+
+template <typename T>
+inline constexpr bool kIsPolygonLike = IsPolygonLike<T>::value;
 
 /**
  * @brief 形状間の交差判定を提供するクラス。
@@ -59,24 +93,6 @@ public:
     static bool intersect(const AABB& box, const Sphere& s);
 
     /**
-     * @brief 2つの3D形状が交差するかを判定します。
-     *
-     * @param s1 最初の3D形状。
-     * @param s2 2番目の3D形状。
-     * @return 交差する場合true。
-     */
-    static bool intersect(const Shape3D& s1, const Shape3D& s2);
-
-    /**
-     * @brief 2つの2D形状が交差するかを判定します。
-     *
-     * @param s1 最初の2D形状。
-     * @param s2 2番目の2D形状。
-     * @return 交差する場合true。
-     */
-    static bool intersect(const Shape2D& s1, const Shape2D& s2);
-
-    /**
      * @brief 2つの2Dポリラインが交差するかを判定します。
      *
      * @param line 最初のポリライン。
@@ -101,6 +117,9 @@ public:
      * @param polygon 多角形。
      * @return 交差する場合true。
      */
+    template <typename Polygon, std::enable_if_t<kIsPolygonLike<Polygon>, int> = 0>
+    static bool intersect(const Polyline2D& line, const Polygon& polygon);
+
     static bool intersect(const Polyline2D& line, const Polygon2D& polygon);
 
     /**
@@ -119,6 +138,9 @@ public:
      * @param circle 円。
      * @return 交差する場合true。
      */
+    template <typename Polygon, std::enable_if_t<kIsPolygonLike<Polygon>, int> = 0>
+    static bool intersect(const Polygon& polygon, const Circle2D& circle);
+
     static bool intersect(const Polygon2D& polygon, const Circle2D& circle);
 
     /**
@@ -128,6 +150,10 @@ public:
      * @param b 2番目の多角形。
      * @return 交差する場合true。
      */
+    template <typename PolygonA, typename PolygonB,
+              std::enable_if_t<kIsPolygonLike<PolygonA> && kIsPolygonLike<PolygonB>, int> = 0>
+    static bool intersect(const PolygonA& a, const PolygonB& b);
+
     static bool intersect(const Polygon2D& a, const Polygon2D& b);
 
     /**
@@ -155,6 +181,9 @@ public:
      * @param ellipse 楕円。
      * @return 交差する場合true。
      */
+    template <typename Polygon, std::enable_if_t<kIsPolygonLike<Polygon>, int> = 0>
+    static bool intersect(const Polygon& polygon, const Ellipse2D& ellipse);
+
     static bool intersect(const Polygon2D& polygon, const Ellipse2D& ellipse);
 
     /**
@@ -164,7 +193,8 @@ public:
      * @param shapes 形状のリスト。
      * @return いずれかと交差する場合true。
      */
-    static bool intersectsAny(const Polyline& line, const std::vector<const Shape3D*>& shapes);
+    template <typename Shape, std::enable_if_t<kIsAABBShape<Shape>, int> = 0>
+    static bool intersectsAny(const Polyline& line, const std::vector<const Shape*>& shapes);
 
     /**
      * @brief 2つのポリラインが形状リストのいずれかと交差するかを判定します。
@@ -174,7 +204,8 @@ public:
      * @param shapes 形状のリスト。
      * @return いずれかと交差する場合true。
      */
-    static bool intersectsAny(const Polyline& line1, const Polyline& line2, const std::vector<const Shape3D*>& shapes);
+    template <typename Shape, std::enable_if_t<kIsAABBShape<Shape>, int> = 0>
+    static bool intersectsAny(const Polyline& line1, const Polyline& line2, const std::vector<const Shape*>& shapes);
 
     /**
      * @brief ポリラインのリストが形状リストのいずれかと交差するかを判定します。
@@ -183,7 +214,8 @@ public:
      * @param shapes 形状のリスト。
      * @return いずれかと交差する場合true。
      */
-    static bool intersectsAny(const std::vector<Polyline>& lines, const std::vector<const Shape3D*>& shapes);
+    template <typename Shape, std::enable_if_t<kIsAABBShape<Shape>, int> = 0>
+    static bool intersectsAny(const std::vector<Polyline>& lines, const std::vector<const Shape*>& shapes);
 
     /**
      * @brief ポリラインと交差する形状のリストを取得します。
@@ -192,7 +224,8 @@ public:
      * @param shapes 形状のリスト。
      * @return 交差する形状のリスト。
      */
-    static std::vector<const Shape3D*> intersectingShapes(const Polyline& line, const std::vector<const Shape3D*>& shapes);
+    template <typename Shape, std::enable_if_t<kIsAABBShape<Shape>, int> = 0>
+    static std::vector<const Shape*> intersectingShapes(const Polyline& line, const std::vector<const Shape*>& shapes);
 
     /**
      * @brief ポリラインのリストと交差する形状のリストを取得します。
@@ -201,16 +234,8 @@ public:
      * @param shapes 形状のリスト。
      * @return 交差する形状のリスト。
      */
-    static std::vector<const Shape3D*> intersectingShapes(const std::vector<Polyline>& lines, const std::vector<const Shape3D*>& shapes);
-
-    /**
-     * @brief 2つの3D形状の交差の種類を判定します。
-     *
-     * @param s1 最初の3D形状。
-     * @param s2 2番目の3D形状。
-     * @return 交差の種類。
-     */
-    static IntersectionType intersectionType(const Shape3D& s1, const Shape3D& s2);
+    template <typename Shape, std::enable_if_t<kIsAABBShape<Shape>, int> = 0>
+    static std::vector<const Shape*> intersectingShapes(const std::vector<Polyline>& lines, const std::vector<const Shape*>& shapes);
 
     /**
      * @brief 2つのAABBの交差の種類を判定します。
@@ -238,7 +263,129 @@ public:
      * @return 交差の種類。
      */
     static IntersectionType intersectionType(const AABB& box, const Sphere& s);
+
+    template <typename ShapeA, typename ShapeB,
+              std::enable_if_t<kIsAABBShape<ShapeA> && kIsAABBShape<ShapeB>, int> = 0>
+    static bool intersect(const ShapeA& s1, const ShapeB& s2) {
+        using First = std::remove_cvref_t<ShapeA>;
+        using Second = std::remove_cvref_t<ShapeB>;
+
+        if constexpr (kIsSupported2DShape<First> && kIsSupported2DShape<Second>) {
+            if constexpr (std::is_same_v<First, Polyline2D> && std::is_same_v<Second, Polyline2D>) return intersect(s1, s2);
+            if constexpr (std::is_same_v<First, Polyline2D> && std::is_same_v<Second, Circle2D>) return intersect(s1, s2);
+            if constexpr (std::is_same_v<First, Circle2D> && std::is_same_v<Second, Polyline2D>) return intersect(s2, s1);
+            if constexpr (std::is_same_v<First, Polyline2D> && kIsPolygonLike<Second>) return intersect(s1, s2);
+            if constexpr (kIsPolygonLike<First> && std::is_same_v<Second, Polyline2D>) return intersect(s2, s1);
+            if constexpr (std::is_same_v<First, Circle2D> && std::is_same_v<Second, Circle2D>) return intersect(s1, s2);
+            if constexpr (kIsPolygonLike<First> && std::is_same_v<Second, Circle2D>) return intersect(s1, s2);
+            if constexpr (std::is_same_v<First, Circle2D> && kIsPolygonLike<Second>) return intersect(s2, s1);
+            if constexpr (kIsPolygonLike<First> && kIsPolygonLike<Second>) return intersect(s1, s2);
+            if constexpr (std::is_same_v<First, Polyline2D> && std::is_same_v<Second, Ellipse2D>) return intersect(s1, s2);
+            if constexpr (std::is_same_v<First, Ellipse2D> && std::is_same_v<Second, Polyline2D>) return intersect(s2, s1);
+            if constexpr (std::is_same_v<First, Circle2D> && std::is_same_v<Second, Ellipse2D>) return intersect(s1, s2);
+            if constexpr (std::is_same_v<First, Ellipse2D> && std::is_same_v<Second, Circle2D>) return intersect(s2, s1);
+            if constexpr (kIsPolygonLike<First> && std::is_same_v<Second, Ellipse2D>) return intersect(s1, s2);
+            if constexpr (std::is_same_v<First, Ellipse2D> && kIsPolygonLike<Second>) return intersect(s2, s1);
+        }
+
+        return intersect(s1.getAABB(), s2.getAABB());
+    }
+
+    template <typename ShapeA, typename ShapeB,
+              std::enable_if_t<kIsAABBShape<ShapeA> && kIsAABBShape<ShapeB>, int> = 0>
+    static IntersectionType intersectionType(const ShapeA& s1, const ShapeB& s2) {
+        return intersectionType(s1.getAABB(), s2.getAABB());
+    }
+
+private:
+    static bool intersectPolylineWithPolygonVertices(const Polyline2D& line, const std::vector<Vec2>& vertices);
+    static bool intersectPolygonWithCircleVertices(const std::vector<Vec2>& vertices, const Circle2D& circle);
+    static bool intersectPolygonVertices(const std::vector<Vec2>& verticesA, const std::vector<Vec2>& verticesB);
+    static bool intersectPolygonWithEllipseVertices(const std::vector<Vec2>& vertices, const Ellipse2D& ellipse);
 };
+
+template <typename Shape, std::enable_if_t<kIsAABBShape<Shape>, int>>
+bool Intersections::intersectsAny(const Polyline& line, const std::vector<const Shape*>& shapes) {
+    for (const Shape* shape : shapes) {
+        if (shape != nullptr && intersect(line, *shape)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+template <typename Polygon, std::enable_if_t<kIsPolygonLike<Polygon>, int>>
+bool Intersections::intersect(const Polyline2D& line, const Polygon& polygon) {
+    return intersectPolylineWithPolygonVertices(line, polygon.getVertices());
+}
+
+template <typename Polygon, std::enable_if_t<kIsPolygonLike<Polygon>, int>>
+bool Intersections::intersect(const Polygon& polygon, const Circle2D& circle) {
+    return intersectPolygonWithCircleVertices(polygon.getVertices(), circle);
+}
+
+template <typename PolygonA, typename PolygonB, std::enable_if_t<kIsPolygonLike<PolygonA> && kIsPolygonLike<PolygonB>, int>>
+bool Intersections::intersect(const PolygonA& a, const PolygonB& b) {
+    return intersectPolygonVertices(a.getVertices(), b.getVertices());
+}
+
+template <typename Polygon, std::enable_if_t<kIsPolygonLike<Polygon>, int>>
+bool Intersections::intersect(const Polygon& polygon, const Ellipse2D& ellipse) {
+    return intersectPolygonWithEllipseVertices(polygon.getVertices(), ellipse);
+}
+
+template <typename Shape, std::enable_if_t<kIsAABBShape<Shape>, int>>
+bool Intersections::intersectsAny(const Polyline& line1, const Polyline& line2, const std::vector<const Shape*>& shapes) {
+    for (const Shape* shape : shapes) {
+        if (shape != nullptr && (intersect(line1, *shape) || intersect(line2, *shape))) {
+            return true;
+        }
+    }
+    return false;
+}
+
+template <typename Shape, std::enable_if_t<kIsAABBShape<Shape>, int>>
+bool Intersections::intersectsAny(const std::vector<Polyline>& lines, const std::vector<const Shape*>& shapes) {
+    for (const Shape* shape : shapes) {
+        if (shape == nullptr) {
+            continue;
+        }
+        for (const Polyline& line : lines) {
+            if (intersect(line, *shape)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+template <typename Shape, std::enable_if_t<kIsAABBShape<Shape>, int>>
+std::vector<const Shape*> Intersections::intersectingShapes(const Polyline& line, const std::vector<const Shape*>& shapes) {
+    std::vector<const Shape*> result;
+    for (const Shape* shape : shapes) {
+        if (shape != nullptr && intersect(line, *shape)) {
+            result.push_back(shape);
+        }
+    }
+    return result;
+}
+
+template <typename Shape, std::enable_if_t<kIsAABBShape<Shape>, int>>
+std::vector<const Shape*> Intersections::intersectingShapes(const std::vector<Polyline>& lines, const std::vector<const Shape*>& shapes) {
+    std::vector<const Shape*> result;
+    for (const Shape* shape : shapes) {
+        if (shape == nullptr) {
+            continue;
+        }
+        for (const Polyline& line : lines) {
+            if (intersect(line, *shape)) {
+                result.push_back(shape);
+                break;
+            }
+        }
+    }
+    return result;
+}
 
 } // namespace fastgeom3d
 

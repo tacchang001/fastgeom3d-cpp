@@ -1,7 +1,7 @@
 #ifndef FASTGEOM3D_POLYGONALPRISM_H
 #define FASTGEOM3D_POLYGONALPRISM_H
 
-#include "fastgeom3d/Prism.h"
+#include "fastgeom3d/AABB.h"
 #include "fastgeom3d/Polygon2D.h"
 
 namespace fastgeom3d {
@@ -9,9 +9,9 @@ namespace fastgeom3d {
 /**
  * @brief 多角形プリズムを表すクラス。
  *
- * Prismを継承し、底面が多角形である3D形状を表現します。
+ * 底面が多角形である3D形状を表現します。
  */
-class PolygonalPrism : public Prism {
+class PolygonalPrism {
 public:
     /**
      * @brief PolygonalPrismのコンストラクタ。
@@ -21,6 +21,12 @@ public:
      */
     PolygonalPrism(const std::vector<Vec2>& vertices, double height);
 
+    double getHeight() const;
+
+    double getBottomZ() const;
+
+    double getTopZ() const;
+
     /**
      * @brief プリズムの底面を取得します。
      *
@@ -28,9 +34,15 @@ public:
      */
     const Polygon2D& getBase() const;
 
+    AABB getAABB() const;
+
 private:
     /** @brief プリズムの底面。 */
     const Polygon2D base;
+    /** @brief プリズムの高さ。 */
+    const double height;
+    /** @brief プリズムのAABB。 */
+    const AABB aabb;
 };
 
 } // namespace fastgeom3d

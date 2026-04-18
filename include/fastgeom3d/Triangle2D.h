@@ -12,9 +12,9 @@ Triangle2D makeTriangle2D(const std::vector<Vec2>& vertices);
 /**
  * @brief 2D三角形を表すクラス。
  *
- * Polygon2Dを継承し、3つの頂点を持つ三角形を表現します。
+ * 3つの頂点を持つ三角形を表現します。
  */
-class Triangle2D final : public Polygon2D {
+class Triangle2D final {
 public:
     /**
      * @brief Triangle2Dのコンストラクタ。
@@ -23,6 +23,15 @@ public:
      * @throws std::invalid_argument 頂点数が3でない場合。
      */
     explicit Triangle2D(const std::vector<Vec2>& vertices);
+
+    const std::vector<Vec2>& getVertices() const;
+
+    AABB getAABB() const;
+
+    const Polygon2D& asPolygon() const;
+
+private:
+    const Polygon2D polygon;
 };
 
 } // namespace fastgeom3d

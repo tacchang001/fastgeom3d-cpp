@@ -1,16 +1,12 @@
 ﻿#include "fastgeom3d/EllipticalCylinder.h"
 #include "fastgeom3d/Ellipse2D.h"
-#include <stdexcept>
+#include "PrismSupport.h"
 
 namespace fastgeom3d {
 
 EllipticalCylinder::EllipticalCylinder(const Vec2& center, double radiusX, double radiusY, double height) :
-    Prism(Ellipse2D(center, radiusX, radiusY), height),
-    center(center), radiusX(radiusX), radiusY(radiusY) {
-    if (radiusX <= 0.0 || radiusY <= 0.0) {
-        throw std::invalid_argument("radiusX and radiusY must be positive");
-    }
-}
+    center(center), radiusX(radiusX), radiusY(radiusY), height(height),
+    aabb(detail::makePrismAABB(Ellipse2D(center, radiusX, radiusY).getAABB(), height)) {}
 
 const Vec2& EllipticalCylinder::getCenter() const {
     return center;
@@ -22,6 +18,22 @@ double EllipticalCylinder::getRadiusX() const {
 
 double EllipticalCylinder::getRadiusY() const {
     return radiusY;
+}
+
+double EllipticalCylinder::getHeight() const {
+    return height;
+}
+
+double EllipticalCylinder::getBottomZ() const {
+    return aabb.minZ;
+}
+
+double EllipticalCylinder::getTopZ() const {
+    return aabb.maxZ;
+}
+
+AABB EllipticalCylinder::getAABB() const {
+    return aabb;
 }
 
 } // namespace fastgeom3d

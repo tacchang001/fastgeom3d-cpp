@@ -1,7 +1,7 @@
 #ifndef FASTGEOM3D_ELLIPTICALCYLINDER_H
 #define FASTGEOM3D_ELLIPTICALCYLINDER_H
 
-#include "fastgeom3d/Prism.h"
+#include "fastgeom3d/AABB.h"
 #include "fastgeom3d/Vec2.h"
 
 namespace fastgeom3d {
@@ -9,9 +9,9 @@ namespace fastgeom3d {
 /**
  * @brief 楕円柱を表すクラス。
  *
- * Prismを継承し、底面が楕円である3D形状を表現します。
+ * 底面が楕円である3D形状を表現します。
  */
-class EllipticalCylinder final : public Prism {
+class EllipticalCylinder final {
 public:
     /**
      * @brief EllipticalCylinderのコンストラクタ。
@@ -45,6 +45,14 @@ public:
      */
     double getRadiusY() const;
 
+    double getHeight() const;
+
+    double getBottomZ() const;
+
+    double getTopZ() const;
+
+    AABB getAABB() const;
+
 private:
     /** @brief 楕円柱の底面の中心座標。 */
     const Vec2 center;
@@ -52,6 +60,10 @@ private:
     const double radiusX;
     /** @brief y方向の半径。 */
     const double radiusY;
+    /** @brief 楕円柱の高さ。 */
+    const double height;
+    /** @brief 楕円柱のAABB。 */
+    const AABB aabb;
 };
 
 } // namespace fastgeom3d

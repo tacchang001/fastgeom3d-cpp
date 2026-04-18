@@ -1,7 +1,7 @@
 #ifndef FASTGEOM3D_POLYLINE_H
 #define FASTGEOM3D_POLYLINE_H
 
-#include "fastgeom3d/Shape3D.h"
+#include "fastgeom3d/AABB.h"
 #include "fastgeom3d/Vec3.h"
 #include <vector>
 
@@ -12,9 +12,9 @@ struct UTMCoordinate;
 /**
  * @brief 3Dポリラインを表すクラス。
  *
- * Shape3Dを継承し、3D空間における連続した線分を表現します。
+ * 3D空間における連続した線分を表現します。
  */
-class Polyline final : public Shape3D {
+class Polyline final {
 public:
     /**
      * @brief Polylineのコンストラクタ。
@@ -44,7 +44,7 @@ public:
      *
      * @return ポリラインを囲む軸平行境界ボックス。
      */
-    AABB getAABB() const override;
+    AABB getAABB() const;
 
 private:
     /** @brief ポリラインの頂点座標リスト。 */

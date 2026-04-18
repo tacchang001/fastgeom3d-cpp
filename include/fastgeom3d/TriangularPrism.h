@@ -12,9 +12,9 @@ TriangularPrism makeTriangularPrism(const std::vector<Vec2>& vertices, double he
 /**
  * @brief 三角形プリズムを表すクラス。
  *
- * PolygonalPrismを継承し、底面が三角形である3D形状を表現します。
+ * 底面が三角形である3D形状を表現します。
  */
-class TriangularPrism final : public PolygonalPrism {
+class TriangularPrism final {
 public:
     /**
      * @brief TriangularPrismのコンストラクタ。
@@ -24,6 +24,21 @@ public:
      * @throws std::invalid_argument 頂点数が3でない場合。
      */
     TriangularPrism(const std::vector<Vec2>& vertices, double height);
+
+    double getHeight() const;
+
+    double getBottomZ() const;
+
+    double getTopZ() const;
+
+    const Polygon2D& getBase() const;
+
+    AABB getAABB() const;
+
+    const PolygonalPrism& asPolygonalPrism() const;
+
+private:
+    const PolygonalPrism prism;
 };
 
 } // namespace fastgeom3d

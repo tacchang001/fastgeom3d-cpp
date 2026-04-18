@@ -12,9 +12,9 @@ QuadrilateralPrism makeQuadrilateralPrism(const std::vector<Vec2>& vertices, dou
 /**
  * @brief 四角形プリズムを表すクラス。
  *
- * PolygonalPrismを継承し、底面が四角形である3D形状を表現します。
+ * 底面が四角形である3D形状を表現します。
  */
-class QuadrilateralPrism final : public PolygonalPrism {
+class QuadrilateralPrism final {
 public:
     /**
      * @brief QuadrilateralPrismのコンストラクタ。
@@ -24,6 +24,21 @@ public:
      * @throws std::invalid_argument 頂点数が4でない場合。
      */
     QuadrilateralPrism(const std::vector<Vec2>& vertices, double height);
+
+    double getHeight() const;
+
+    double getBottomZ() const;
+
+    double getTopZ() const;
+
+    const Polygon2D& getBase() const;
+
+    AABB getAABB() const;
+
+    const PolygonalPrism& asPolygonalPrism() const;
+
+private:
+    const PolygonalPrism prism;
 };
 
 } // namespace fastgeom3d

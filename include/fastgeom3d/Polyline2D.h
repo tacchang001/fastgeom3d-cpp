@@ -1,7 +1,7 @@
 #ifndef FASTGEOM3D_POLYLINE2D_H
 #define FASTGEOM3D_POLYLINE2D_H
 
-#include "fastgeom3d/Shape2D.h"
+#include "fastgeom3d/AABB.h"
 #include "fastgeom3d/Vec2.h"
 #include <vector>
 
@@ -10,9 +10,9 @@ namespace fastgeom3d {
 /**
  * @brief 2Dポリラインを表すクラス。
  *
- * Shape2Dを継承し、2D空間における連続した線分を表現します。
+ * 2D空間における連続した線分を表現します。
  */
-class Polyline2D final : public Shape2D {
+class Polyline2D final {
 public:
     /**
      * @brief Polyline2Dのコンストラクタ。
@@ -34,7 +34,7 @@ public:
      *
      * @return ポリラインを囲む軸平行境界ボックス。
      */
-    AABB getAABB() const override;
+    AABB getAABB() const;
 
 private:
     /** @brief ポリラインの頂点座標リスト。 */

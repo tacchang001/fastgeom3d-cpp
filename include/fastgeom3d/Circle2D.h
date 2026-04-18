@@ -1,7 +1,7 @@
 #ifndef FASTGEOM3D_CIRCLE2D_H
 #define FASTGEOM3D_CIRCLE2D_H
 
-#include "fastgeom3d/Shape2D.h"
+#include "fastgeom3d/AABB.h"
 #include "fastgeom3d/Vec2.h"
 
 namespace fastgeom3d {
@@ -9,9 +9,9 @@ namespace fastgeom3d {
 /**
  * @brief 2D円を表すクラス。
  *
- * Shape2Dを継承し、2D空間における円を表現します。
+ * 2D空間における円を表現します。
  */
-class Circle2D final : public Shape2D {
+class Circle2D final {
 public:
     /**
      * @brief Circle2Dのコンストラクタ。
@@ -41,7 +41,7 @@ public:
      *
      * @return 円を囲む軸平行境界ボックス。
      */
-    AABB getAABB() const override;
+    AABB getAABB() const;
 
 private:
     /** @brief 円の中心座標。 */

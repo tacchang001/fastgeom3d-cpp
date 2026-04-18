@@ -1,7 +1,7 @@
 ﻿#ifndef FASTGEOM3D_ANNULARSECTOR2D_H
 #define FASTGEOM3D_ANNULARSECTOR2D_H
 
-#include "fastgeom3d/Shape2D.h"
+#include "fastgeom3d/AABB.h"
 #include <memory>
 
 namespace fastgeom3d {
@@ -11,9 +11,9 @@ class Vec2;
 /**
  * @brief 2D環状扇形を表すクラス。
  *
- * Shape2Dを継承し、2D空間における環状扇形（ドーナツ状の扇形）を表現します。
+ * 2D空間における環状扇形（ドーナツ状の扇形）を表現します。
  */
-class AnnularSector2D final : public Shape2D {
+class AnnularSector2D final {
 public:
     /**
      * @brief AnnularSector2Dのコンストラクタ。
@@ -79,7 +79,7 @@ public:
      *
      * @return 環状扇形を囲む軸平行境界ボックス。
      */
-    AABB getAABB() const override;
+    AABB getAABB() const;
 
 private:
     /** @brief 実装クラスの前方宣言。 */
