@@ -12,6 +12,10 @@ class Vec2;
  * @brief 2D環状扇形を表すクラス。
  *
  * 2D空間における環状扇形（ドーナツ状の扇形）を表現します。
+ *
+ * 角度は地理用途の方位角として解釈され、0ラジアンは真北を表します。
+ * 角度は時計回りに増加し、π/2 が真東、π が真南、3π/2 が真西です。
+ * たとえば 0 から π/2 は北から東、0 から π は東側半平面を表します。
  */
 class AnnularSector2D final {
 public:
@@ -21,8 +25,8 @@ public:
      * @param center_ 環状扇形の中心座標。
      * @param outerRadius_ 外側半径。正の値でなければなりません。
      * @param innerRadius_ 内側半径。0以上でouterRadius_以下でなければなりません。
-     * @param startAngle_ 開始角度 (ラジアン単位)。
-     * @param endAngle_ 終了角度 (ラジアン単位)。
+    * @param startAngle_ 開始角度 (ラジアン単位)。0は真北、角度は時計回りに増加します。
+    * @param endAngle_ 終了角度 (ラジアン単位)。0は真北、角度は時計回りに増加します。
      */
     AnnularSector2D(const Vec2& center_, double outerRadius_, double innerRadius_, double startAngle_, double endAngle_);
     
@@ -63,14 +67,14 @@ public:
     /**
      * @brief 開始角度を取得します。
      *
-     * @return 開始角度 (ラジアン単位)。
+     * @return 開始角度 (ラジアン単位)。0は真北、角度は時計回りに増加します。
      */
     double getStartAngle() const;
     
     /**
      * @brief 終了角度を取得します。
      *
-     * @return 終了角度 (ラジアン単位)。
+     * @return 終了角度 (ラジアン単位)。0は真北、角度は時計回りに増加します。
      */
     double getEndAngle() const;
 

@@ -1,5 +1,6 @@
 ﻿#include <gtest/gtest.h>
 #include "fastgeom3d/algorithms.h"
+#include <numbers>
 
 using namespace fastgeom3d;
 
@@ -43,4 +44,60 @@ TEST(IntersectionsTests, CircleIntersection) {
     EXPECT_TRUE(Intersections::intersect(a, b));
     Circle2D c(Vec2(3.0, 0.0), 1.0);
     EXPECT_FALSE(Intersections::intersect(a, c));
+}
+
+TEST(IntersectionsTests, QuadrilateralCornerTouchIntersection) {
+    Quadrilateral2D a({
+        Vec2(0.0, 0.0),
+        Vec2(1.0, 0.0),
+        Vec2(1.0, 1.0),
+        Vec2(0.0, 1.0)
+    });
+    Quadrilateral2D b({
+        Vec2(1.0, 1.0),
+        Vec2(2.0, 1.0),
+        Vec2(2.0, 2.0),
+        Vec2(1.0, 2.0)
+    });
+
+    EXPECT_TRUE(Intersections::intersect(a, b));
+    EXPECT_EQ(Intersections::intersectionType(a, b), Intersections::IntersectionType::TOUCH);
+}
+
+TEST(IntersectionsTests, AnnularSectorQuadrilateralTouchIntersection) {
+    AnnularSector2D sector(
+        Vec2(1.0, 1.0),
+        1.0,
+        0.0,
+        0.0,
+        std::numbers::pi
+    );
+    Quadrilateral2D rectangle({
+        Vec2(2.0, 0.0),
+        Vec2(3.0, 0.0),
+        Vec2(3.0, 2.0),
+        Vec2(2.0, 2.0)
+    });
+
+    EXPECT_TRUE(Intersections::intersect(sector, rectangle));
+    EXPECT_EQ(Intersections::intersectionType(sector, rectangle), Intersections::IntersectionType::TOUCH);
+}
+
+TEST(IntersectionsTests, QuadrilateralAnnularSectorTouchIntersection) {
+    Quadrilateral2D rectangle({
+        Vec2(0.0, 0.0),
+        Vec2(1.0, 0.0),
+        Vec2(1.0, 2.0),
+        Vec2(0.0, 2.0)
+    });
+    AnnularSector2D sector(
+        Vec2(1.0, 1.0),
+        1.0,
+        0.0,
+        0.0,
+        std::numbers::pi
+    );
+
+    EXPECT_TRUE(Intersections::intersect(rectangle, sector));
+    EXPECT_EQ(Intersections::intersectionType(rectangle, sector), Intersections::IntersectionType::TOUCH);
 }

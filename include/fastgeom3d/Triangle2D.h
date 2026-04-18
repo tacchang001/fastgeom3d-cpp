@@ -6,6 +6,8 @@
 namespace fastgeom3d {
 
 class Triangle2D;
+    /**
+     * @brief 三角形の頂点座標を取得します。
 
 /**
  * @brief 3頂点からTriangle2Dを生成します。
@@ -31,6 +33,7 @@ public:
      */
     explicit Triangle2D(const std::vector<Vec2>& vertices);
 
+    /**
      * @brief 三角形の頂点座標を取得します。
      *
      * @return 頂点座標のリスト。

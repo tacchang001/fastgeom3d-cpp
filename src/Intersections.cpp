@@ -9,6 +9,7 @@
 #include "fastgeom3d/Vec2.h"
 #include <algorithm>
 #include <cmath>
+#include <numbers>
 
 namespace fastgeom3d {
 
@@ -263,7 +264,7 @@ bool Intersections::intersect(const Circle2D& circle, const Ellipse2D& ellipse) 
     const double radius = circle.getRadius(); // 円の半径
     const Vec2 center = circle.getCenter(); // 円の中心
     for (int i = 0; i < 32; ++i) {
-        const double angle = 2.0 * M_PI * i / 32.0; // サンプル角度
+        const double angle = 2.0 * std::numbers::pi * i / 32.0; // サンプル角度
         const Vec2 sample(center.x + radius * std::cos(angle), center.y + radius * std::sin(angle)); // 円周上のサンプル点
         if (pointInEllipse(sample, ellipse)) {
             return true;

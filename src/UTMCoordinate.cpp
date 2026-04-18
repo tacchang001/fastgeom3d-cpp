@@ -1,8 +1,15 @@
 #include "fastgeom3d/UTMCoordinate.h"
 #include "fastgeom3d/Vec3.h"
 #include <cmath>
+#include <numbers>
 
 namespace fastgeom3d {
+
+namespace {
+
+constexpr double kRadiansPerDegree = std::numbers::pi / 180.0;
+
+} // namespace
 
 UTMCoordinate::UTMCoordinate(int zoneNumber_, bool northernHemisphere_, double easting_, double northing_, double elevation_) :
     zoneNumber(zoneNumber_), northernHemisphere(northernHemisphere_),
@@ -32,9 +39,9 @@ UTMCoordinate UTMCoordinate::fromLatLon(double latitude, double longitude, doubl
     }
 
     bool northernHemisphere = latitude >= 0.0; // 北半球かどうか
-    double latRad = latitude * M_PI / 180.0; // 緯度をラジアンに変換
-    double lonRad = longitude * M_PI / 180.0; // 経度をラジアンに変換
-    double centralMeridian = (-183.0 + zoneNumber * 6.0) * M_PI / 180.0; // 中央子午線
+    double latRad = latitude * kRadiansPerDegree; // 緯度をラジアンに変換
+    double lonRad = longitude * kRadiansPerDegree; // 経度をラジアンに変換
+    double centralMeridian = (-183.0 + zoneNumber * 6.0) * kRadiansPerDegree; // 中央子午線
 
     double a = 6378137.0; // WGS84楕円体の長半径
     double f = 1.0 / 298.257223563; // 扁平率

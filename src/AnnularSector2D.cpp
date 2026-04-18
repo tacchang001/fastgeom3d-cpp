@@ -3,8 +3,52 @@
 #include "fastgeom3d/Vec2.h"
 #include <algorithm>
 #include <cmath>
+#include <numbers>
 
 namespace fastgeom3d {
+
+namespace {
+
+constexpr double kHalfPi = std::numbers::pi / 2.0;
+constexpr double kPi = std::numbers::pi;
+constexpr double kTwoPi = 2.0 * std::numbers::pi;
+
+double normalizeAngle(double angle) {
+    double normalized = std::fmod(angle, kTwoPi);
+    if (normalized < 0.0) {
+        normalized += kTwoPi;
+    }
+    return normalized;
+}
+
+Vec2 pointOnBearing(const Vec2& center, double radius, double bearing) {
+    return Vec2(
+        center.x + radius * std::sin(bearing),
+        center.y + radius * std::cos(bearing)
+    );
+}
+
+void extendBounds(double x, double y, double& minX, double& maxX, double& minY, double& maxY) {
+    minX = std::min(minX, x);
+    maxX = std::max(maxX, x);
+    minY = std::min(minY, y);
+    maxY = std::max(maxY, y);
+}
+
+template <typename AddPoint>
+void addCriticalBearingIfInRange(double baseBearing, double startBearing, double endBearing, AddPoint&& addPoint) {
+    double candidate = baseBearing;
+    while (candidate < startBearing) {
+        candidate += kTwoPi;
+    }
+
+    while (candidate <= endBearing) {
+        addPoint(candidate);
+        candidate += kTwoPi;
+    }
+}
+
+} // namespace
 
 class AnnularSector2D::Impl {
 public:
@@ -48,14 +92,9 @@ double AnnularSector2D::getEndAngle() const {
 }
 
 AABB AnnularSector2D::getAABB() const {
-    // 角度を0-2πに正規化
-    double sa = std::fmod(pImpl->startAngle, 2 * M_PI);
-    if (sa < 0) sa += 2 * M_PI;
-    double ea = std::fmod(pImpl->endAngle, 2 * M_PI);
-    if (ea < 0) ea += 2 * M_PI;
-    if (ea < sa) ea += 2 * M_PI; // 角度範囲が360度を超える場合
-
-    double angleRange = ea - sa;
+    const double angleRange = pImpl->endAngle - pImpl->startAngle;
+    const double startBearing = normalizeAngle(pImpl->startAngle);
+    const double endBearing = startBearing + angleRange;
 
     // 初期値：中心と開始点、終了点
     double x_min = pImpl->center.x;
@@ -64,61 +103,33 @@ AABB AnnularSector2D::getAABB() const {
     double y_max = pImpl->center.y;
 
     // 開始点と終了点を追加
-    double startX = pImpl->center.x + pImpl->outerRadius * std::cos(sa);
-    double startY = pImpl->center.y + pImpl->outerRadius * std::sin(sa);
-    double endX = pImpl->center.x + pImpl->outerRadius * std::cos(ea);
-    double endY = pImpl->center.y + pImpl->outerRadius * std::sin(ea);
+    const Vec2 startPoint = pointOnBearing(pImpl->center, pImpl->outerRadius, startBearing);
+    const Vec2 endPoint = pointOnBearing(pImpl->center, pImpl->outerRadius, endBearing);
 
-    x_min = std::min({x_min, startX, endX});
-    x_max = std::max({x_max, startX, endX});
-    y_min = std::min({y_min, startY, endY});
-    y_max = std::max({y_max, startY, endY});
+    extendBounds(startPoint.x, startPoint.y, x_min, x_max, y_min, y_max);
+    extendBounds(endPoint.x, endPoint.y, x_min, x_max, y_min, y_max);
 
     if (pImpl->innerRadius > 0) {
-        double innerStartX = pImpl->center.x + pImpl->innerRadius * std::cos(sa);
-        double innerStartY = pImpl->center.y + pImpl->innerRadius * std::sin(sa);
-        double innerEndX = pImpl->center.x + pImpl->innerRadius * std::cos(ea);
-        double innerEndY = pImpl->center.y + pImpl->innerRadius * std::sin(ea);
-        x_min = std::min({x_min, innerStartX, innerEndX});
-        x_max = std::max({x_max, innerStartX, innerEndX});
-        y_min = std::min({y_min, innerStartY, innerEndY});
-        y_max = std::max({y_max, innerStartY, innerEndY});
+        const Vec2 innerStartPoint = pointOnBearing(pImpl->center, pImpl->innerRadius, startBearing);
+        const Vec2 innerEndPoint = pointOnBearing(pImpl->center, pImpl->innerRadius, endBearing);
+        extendBounds(innerStartPoint.x, innerStartPoint.y, x_min, x_max, y_min, y_max);
+        extendBounds(innerEndPoint.x, innerEndPoint.y, x_min, x_max, y_min, y_max);
     }
 
-    // 角度範囲内でcosとsinの極値をチェック
-    // xの極値：cos(theta)が最小/最大
-    // theta = 0, π, sa, ea
-    std::vector<double> angles = {0, M_PI, sa, ea};
-    if (angleRange < 2 * M_PI) {
-        // 角度範囲内でcosが最小/最大になるthetaを追加
-        double cosMinTheta = std::floor(sa / M_PI) * M_PI + M_PI; // 次のπ
-        if (cosMinTheta < ea) angles.push_back(cosMinTheta);
-        double cosMaxTheta = std::floor(sa / M_PI) * M_PI; // 次の0
-        if (cosMaxTheta < ea) angles.push_back(cosMaxTheta);
+    // 地理方位系での極値: 0=北(y最大), π/2=東(x最大), π=南(y最小), 3π/2=西(x最小)
+    for (double bearing : {0.0, kHalfPi, kPi, 3.0 * kHalfPi}) {
+        addCriticalBearingIfInRange(bearing, startBearing, endBearing, [&](double candidate) {
+            const Vec2 point = pointOnBearing(pImpl->center, pImpl->outerRadius, candidate);
+            extendBounds(point.x, point.y, x_min, x_max, y_min, y_max);
+        });
     }
 
-    for (double theta : angles) {
-        if (theta >= sa && theta <= ea) {
-            double x = pImpl->center.x + pImpl->outerRadius * std::cos(theta);
-            double y = pImpl->center.y + pImpl->outerRadius * std::sin(theta);
-            x_min = std::min(x_min, x);
-            x_max = std::max(x_max, x);
-            y_min = std::min(y_min, y);
-            y_max = std::max(y_max, y);
-        }
-    }
-
-    // 同様にinnerRadius
     if (pImpl->innerRadius > 0) {
-        for (double theta : angles) {
-            if (theta >= sa && theta <= ea) {
-                double x = pImpl->center.x + pImpl->innerRadius * std::cos(theta);
-                double y = pImpl->center.y + pImpl->innerRadius * std::sin(theta);
-                x_min = std::min(x_min, x);
-                x_max = std::max(x_max, x);
-                y_min = std::min(y_min, y);
-                y_max = std::max(y_max, y);
-            }
+        for (double bearing : {0.0, kHalfPi, kPi, 3.0 * kHalfPi}) {
+            addCriticalBearingIfInRange(bearing, startBearing, endBearing, [&](double candidate) {
+                const Vec2 point = pointOnBearing(pImpl->center, pImpl->innerRadius, candidate);
+                extendBounds(point.x, point.y, x_min, x_max, y_min, y_max);
+            });
         }
     }
 
