@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "fastgeom3d/fastgeom3d.h"
+#include "fastgeom3d/core.h"
 
 using namespace fastgeom3d;
 

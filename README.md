@@ -10,7 +10,7 @@
 
 ## 推奨 include
 
-新規コードでは `fastgeom3d/fastgeom3d.h` の一括 include ではなく、用途別の集約ヘッダを使ってください。`fastgeom3d/fastgeom3d.h` は既存コード互換のため引き続き利用できますが、段階的な移行先は以下です。
+公開 API は用途別の集約ヘッダを使ってください。代表的な入口は以下です。
 
 ```cpp
 #include "fastgeom3d/core.h"        // Vec2, Vec3, AABB

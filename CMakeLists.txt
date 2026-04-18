@@ -42,7 +42,6 @@ add_library(fastgeom3d
 )
 
 set(FASTGEOM3D_PUBLIC_HEADERS
-  include/fastgeom3d/fastgeom3d.h
   include/fastgeom3d/core.h
   include/fastgeom3d/shapes2d.h
   include/fastgeom3d/prisms.h

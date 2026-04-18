@@ -1,4 +1,4 @@
-#include "fastgeom3d/fastgeom3d.h"
+#include "fastgeom3d/core.h"
 #include <cmath>
 
 namespace fastgeom3d {
