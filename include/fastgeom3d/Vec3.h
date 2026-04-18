@@ -5,31 +5,77 @@ namespace fastgeom3d {
 
 struct UTMCoordinate;
 
-struct Vec3 {
-    const double x;
-    const double y;
-    const double z;
+/**
+ * @brief 3Dベクトルを表すクラス。
+ *
+ * x, y, zの座標を持つ3次元ベクトルです。ベクトル演算を提供します。
+ */
+class Vec3 {
+public:
+    /** @brief x座標。 */
+    double x;
+    /** @brief y座標。 */
+    double y;
+    /** @brief z座標。 */
+    double z;
 
-    Vec3(double x_, double y_, double z_) : x(x_), y(y_), z(z_) {}
+    /**
+     * @brief Vec3のコンストラクタ。
+     *
+     * @param x_ x座標。
+     * @param y_ y座標。
+     * @param z_ z座標。
+     */
+    Vec3(double x_, double y_, double z_);
 
+    /**
+     * @brief UTM座標からVec3を作成します。
+     *
+     * @param utm UTM座標。
+     * @return Vec3オブジェクト。
+     */
     static Vec3 fromUTM(const UTMCoordinate& utm);
+
+    /**
+     * @brief 緯度、経度、高度からVec3を作成します。
+     *
+     * @param latitude 緯度 (度単位)。
+     * @param longitude 経度 (度単位)。
+     * @param elevation 高度 (メートル単位)。
+     * @return Vec3オブジェクト。
+     */
     static Vec3 fromLatLon(double latitude, double longitude, double elevation);
 
-    Vec3 add(const Vec3& o) const {
-        return Vec3(x + o.x, y + o.y, z + o.z);
-    }
+    /**
+     * @brief ベクトルの加算を行います。
+     *
+     * @param o 加算するベクトル。
+     * @return 加算結果のVec3。
+     */
+    Vec3 add(const Vec3& o) const;
 
-    Vec3 sub(const Vec3& o) const {
-        return Vec3(x - o.x, y - o.y, z - o.z);
-    }
+    /**
+     * @brief ベクトルの減算を行います。
+     *
+     * @param o 減算するベクトル。
+     * @return 減算結果のVec3。
+     */
+    Vec3 sub(const Vec3& o) const;
 
-    double dot(const Vec3& o) const {
-        return x * o.x + y * o.y + z * o.z;
-    }
+    /**
+     * @brief ベクトルの内積を計算します。
+     *
+     * @param o 内積を取るベクトル。
+     * @return 内積の値。
+     */
+    double dot(const Vec3& o) const;
 
-    double lengthSquared() const {
-        return x * x + y * y + z * z;
-    }
+    /**
+     * @brief ベクトルの長さの二乗を計算します。
+     *
+     * @return 長さの二乗。
+     */
+    double lengthSquared() const;
 };
 
 } // namespace fastgeom3d

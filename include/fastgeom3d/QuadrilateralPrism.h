@@ -5,13 +5,25 @@
 
 namespace fastgeom3d {
 
+class QuadrilateralPrism;
+
+QuadrilateralPrism makeQuadrilateralPrism(const std::vector<Vec2>& vertices, double height);
+
+/**
+ * @brief 四角形プリズムを表すクラス。
+ *
+ * PolygonalPrismを継承し、底面が四角形である3D形状を表現します。
+ */
 class QuadrilateralPrism final : public PolygonalPrism {
 public:
-    QuadrilateralPrism(const std::vector<Vec2>& vertices, double height) : PolygonalPrism(vertices, height) {
-        if (vertices.size() != 4) {
-            throw std::invalid_argument("Quadrilateral2D requires exactly 4 vertices");
-        }
-    }
+    /**
+     * @brief QuadrilateralPrismのコンストラクタ。
+     *
+     * @param vertices 底面の四角形の頂点座標リスト。ちょうど4つの頂点が必要。
+     * @param height プリズムの高さ。
+     * @throws std::invalid_argument 頂点数が4でない場合。
+     */
+    QuadrilateralPrism(const std::vector<Vec2>& vertices, double height);
 };
 
 } // namespace fastgeom3d

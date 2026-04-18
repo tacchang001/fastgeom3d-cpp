@@ -4,28 +4,36 @@
 
 namespace fastgeom3d {
 
+AABB::AABB(double minX_, double minY_, double minZ_,
+           double maxX_, double maxY_, double maxZ_) :
+    minX(minX_), minY(minY_), minZ(minZ_),
+    maxX(maxX_), maxY(maxY_), maxZ(maxZ_) {}
+
 AABB AABB::fromCenterHalfExtents(const Vec3& center, const Vec3& halfExtents) {
+    // center: AABBの中心座標
+    // halfExtents: 各軸方向の半拡張
     return AABB(
-        center.x - halfExtents.x,
-        center.y - halfExtents.y,
-        center.z - halfExtents.z,
-        center.x + halfExtents.x,
-        center.y + halfExtents.y,
-        center.z + halfExtents.z
+        center.x - halfExtents.x, // minX
+        center.y - halfExtents.y, // minY
+        center.z - halfExtents.z, // minZ
+        center.x + halfExtents.x, // maxX
+        center.y + halfExtents.y, // maxY
+        center.z + halfExtents.z  // maxZ
     );
 }
 
 AABB AABB::fromPoints(const std::vector<Vec3>& points) {
+    // points: AABBを計算する点のリスト
     if (points.empty()) {
         throw std::invalid_argument("points must not be empty");
     }
 
-    double minX = std::numeric_limits<double>::infinity();
-    double minY = std::numeric_limits<double>::infinity();
-    double minZ = std::numeric_limits<double>::infinity();
-    double maxX = -std::numeric_limits<double>::infinity();
-    double maxY = -std::numeric_limits<double>::infinity();
-    double maxZ = -std::numeric_limits<double>::infinity();
+    double minX = std::numeric_limits<double>::infinity(); // 最小x座標の初期値
+    double minY = std::numeric_limits<double>::infinity(); // 最小y座標の初期値
+    double minZ = std::numeric_limits<double>::infinity(); // 最小z座標の初期値
+    double maxX = -std::numeric_limits<double>::infinity(); // 最大x座標の初期値
+    double maxY = -std::numeric_limits<double>::infinity(); // 最大y座標の初期値
+    double maxZ = -std::numeric_limits<double>::infinity(); // 最大z座標の初期値
 
     for (const auto& point : points) {
         minX = std::min(minX, point.x);
@@ -40,14 +48,15 @@ AABB AABB::fromPoints(const std::vector<Vec3>& points) {
 }
 
 AABB AABB::fromPoints2D(const std::vector<Vec2>& points) {
+    // points: 2D点のリスト
     if (points.empty()) {
         throw std::invalid_argument("points must not be empty");
     }
 
-    double minX = std::numeric_limits<double>::infinity();
-    double minY = std::numeric_limits<double>::infinity();
-    double maxX = -std::numeric_limits<double>::infinity();
-    double maxY = -std::numeric_limits<double>::infinity();
+    double minX = std::numeric_limits<double>::infinity(); // 最小x座標
+    double minY = std::numeric_limits<double>::infinity(); // 最小y座標
+    double maxX = -std::numeric_limits<double>::infinity(); // 最大x座標
+    double maxY = -std::numeric_limits<double>::infinity(); // 最大y座標
 
     for (const auto& point : points) {
         minX = std::min(minX, point.x);

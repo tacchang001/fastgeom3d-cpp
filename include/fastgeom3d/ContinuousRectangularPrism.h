@@ -4,35 +4,40 @@
 #include "fastgeom3d/Shape3D.h"
 #include "fastgeom3d/AABB.h"
 #include <vector>
-#include <limits>
-#include <stdexcept>
 
 namespace fastgeom3d {
 
+/**
+ * @brief 連続した直方体プリズムを表すクラス。
+ *
+ * Shape3Dを継承し、連続した複数のAABBからなる3D形状を表現します。
+ */
 class ContinuousRectangularPrism final : public Shape3D {
 public:
-    explicit ContinuousRectangularPrism(const std::vector<AABB>& prisms_) : prisms(prisms_) {
-        if (prisms.size() < 2) {
-            throw std::invalid_argument("ContinuousRectangularPrism requires at least 2 prisms");
-        }
-        validateContinuity(prisms);
-    }
+    /**
+     * @brief ContinuousRectangularPrismのコンストラクタ。
+     *
+     * @param prisms_ 連続したAABBのベクトル。少なくとも2つのプリズムが必要です。
+     * @throw std::invalid_argument プリズムが2つ未満、または連続していない場合。
+     */
+    explicit ContinuousRectangularPrism(const std::vector<AABB>& prisms_);
 
-    const std::vector<AABB>& getPrisms() const {
-        return prisms;
-    }
+    /**
+     * @brief プリズムのリストを取得します。
+     *
+     * @return AABBのベクトル。
+     */
+    const std::vector<AABB>& getPrisms() const;
 
+    /**
+     * @brief 連続プリズム全体のAABBを取得します。
+     *
+     * @return 全体を囲む軸平行境界ボックス。
+     */
     AABB getAABB() const override;
 
 private:
-    static void validateContinuity(const std::vector<AABB>& prisms);
-    static bool areAdjacentWithMatchingFace(const AABB& a, const AABB& b);
-    static bool isFaceAdjacent(
-        double minA, double maxA, double minB, double maxB,
-        double minC1, double maxC1, double minC2, double maxC2,
-        double minD1, double maxD1, double minD2, double maxD2);
-    static bool intervalsEqual(double minA, double maxA, double minB, double maxB);
-
+    /** @brief 連続したAABBのベクトル。 */
     const std::vector<AABB> prisms;
 };
 

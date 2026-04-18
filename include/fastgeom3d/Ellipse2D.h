@@ -2,46 +2,61 @@
 #define FASTGEOM3D_ELLIPSE2D_H
 
 #include "fastgeom3d/Shape2D.h"
-#include "fastgeom3d/AABB.h"
 #include "fastgeom3d/Vec2.h"
 
 namespace fastgeom3d {
 
+/**
+ * @brief 2D楕円を表すクラス。
+ *
+ * Shape2Dを継承し、中心座標とx/y方向の半径を持つ楕円を表現します。
+ */
 class Ellipse2D final : public Shape2D {
 public:
-    Ellipse2D(const Vec2& center_, double radiusX_, double radiusY_) :
-        center(center_), radiusX(radiusX_), radiusY(radiusY_) {
-        if (radiusX_ <= 0.0 || radiusY_ <= 0.0) {
-            throw std::invalid_argument("radiusX and radiusY must be positive");
-        }
-    }
+    /**
+     * @brief Ellipse2Dのコンストラクタ。
+     *
+     * @param center_ 楕円の中心座標。
+     * @param radiusX_ x方向の半径。正の値でなければならない。
+     * @param radiusY_ y方向の半径。正の値でなければならない。
+     * @throws std::invalid_argument radiusXまたはradiusYが正でない場合。
+     */
+    Ellipse2D(const Vec2& center_, double radiusX_, double radiusY_);
 
-    const Vec2& getCenter() const {
-        return center;
-    }
+    /**
+     * @brief 楕円の中心座標を取得します。
+     *
+     * @return 中心座標。
+     */
+    const Vec2& getCenter() const;
 
-    double getRadiusX() const {
-        return radiusX;
-    }
+    /**
+     * @brief x方向の半径を取得します。
+     *
+     * @return x方向の半径。
+     */
+    double getRadiusX() const;
 
-    double getRadiusY() const {
-        return radiusY;
-    }
+    /**
+     * @brief y方向の半径を取得します。
+     *
+     * @return y方向の半径。
+     */
+    double getRadiusY() const;
 
-    AABB getAABB() const override {
-        return AABB(
-            center.x - radiusX,
-            center.y - radiusY,
-            0.0,
-            center.x + radiusX,
-            center.y + radiusY,
-            0.0
-        );
-    }
+    /**
+     * @brief 楕円の軸平行境界ボックス (AABB) を取得します。
+     *
+     * @return AABBオブジェクト。
+     */
+    AABB getAABB() const override;
 
 private:
+    /** @brief 楕円の中心座標。 */
     const Vec2 center;
+    /** @brief x方向の半径。 */
     const double radiusX;
+    /** @brief y方向の半径。 */
     const double radiusY;
 };
 

@@ -5,13 +5,25 @@
 
 namespace fastgeom3d {
 
+class TriangularPrism;
+
+TriangularPrism makeTriangularPrism(const std::vector<Vec2>& vertices, double height);
+
+/**
+ * @brief 三角形プリズムを表すクラス。
+ *
+ * PolygonalPrismを継承し、底面が三角形である3D形状を表現します。
+ */
 class TriangularPrism final : public PolygonalPrism {
 public:
-    TriangularPrism(const std::vector<Vec2>& vertices, double height) : PolygonalPrism(vertices, height) {
-        if (vertices.size() != 3) {
-            throw std::invalid_argument("Triangle2D requires exactly 3 vertices");
-        }
-    }
+    /**
+     * @brief TriangularPrismのコンストラクタ。
+     *
+     * @param vertices 底面の三角形の頂点座標リスト。ちょうど3つの頂点が必要。
+     * @param height プリズムの高さ。
+     * @throws std::invalid_argument 頂点数が3でない場合。
+     */
+    TriangularPrism(const std::vector<Vec2>& vertices, double height);
 };
 
 } // namespace fastgeom3d

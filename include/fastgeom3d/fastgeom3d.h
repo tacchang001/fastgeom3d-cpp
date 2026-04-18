@@ -1,34 +1,34 @@
 #ifndef FASTGEOM3D_FASTGEOM3D_H
 #define FASTGEOM3D_FASTGEOM3D_H
 
-#include "fastgeom3d/Vec2.h"
-#include "fastgeom3d/Vec3.h"
-#include "fastgeom3d/Shape3D.h"
-#include "fastgeom3d/Shape2D.h"
-#include "fastgeom3d/AABB.h"
-#include "fastgeom3d/Circle2D.h"
-#include "fastgeom3d/Ellipse2D.h"
-#include "fastgeom3d/Polygon2D.h"
-#include "fastgeom3d/Polyline2D.h"
-#include "fastgeom3d/Triangle2D.h"
-#include "fastgeom3d/Quadrilateral2D.h"
-#include "fastgeom3d/Prism.h"
-#include "fastgeom3d/PolygonalPrism.h"
-#include "fastgeom3d/TriangularPrism.h"
-#include "fastgeom3d/QuadrilateralPrism.h"
-#include "fastgeom3d/Cylinder.h"
-#include "fastgeom3d/EllipticalCylinder.h"
-#include "fastgeom3d/ContinuousRectangularPrism.h"
-#include "fastgeom3d/Polyline.h"
-#include "fastgeom3d/Sphere.h"
-#include "fastgeom3d/UTMCoordinate.h"
-#include "fastgeom3d/Intersections.h"
+#include "fastgeom3d/algorithms.h"
 
 namespace fastgeom3d {
 
+/**
+ * @brief 単位立方体の体積を計算します。
+ *
+ * @return 単位立方体の体積 (1.0)。
+ */
 double volumeOfUnitCube();
 
+/**
+ * @brief 3D空間における2点間の距離を計算します。
+ *
+ * @param x1 点1のx座標。
+ * @param y1 点1のy座標。
+ * @param z1 点1のz座標。
+ * @param x2 点2のx座標。
+ * @param y2 点2のy座標。
+ * @param z2 点2のz座標。
+ * @return 2点間の距離。
+ */
 double distance3D(double x1, double y1, double z1, double x2, double y2, double z2);
+
+Triangle2D makeTriangle2D(const std::vector<Vec2>& vertices);
+Quadrilateral2D makeQuadrilateral2D(const std::vector<Vec2>& vertices);
+TriangularPrism makeTriangularPrism(const std::vector<Vec2>& vertices, double height);
+QuadrilateralPrism makeQuadrilateralPrism(const std::vector<Vec2>& vertices, double height);
 
 } // namespace fastgeom3d
 

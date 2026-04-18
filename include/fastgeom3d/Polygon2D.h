@@ -2,29 +2,42 @@
 #define FASTGEOM3D_POLYGON2D_H
 
 #include "fastgeom3d/Shape2D.h"
-#include "fastgeom3d/AABB.h"
 #include "fastgeom3d/Vec2.h"
 #include <vector>
 
 namespace fastgeom3d {
 
+/**
+ * @brief 2D多角形を表すクラス。
+ *
+ * Shape2Dを継承し、頂点のリストを持つ多角形を表現します。
+ */
 class Polygon2D : public Shape2D {
 public:
-    explicit Polygon2D(const std::vector<Vec2>& vertices_) : vertices(vertices_) {
-        if (vertices.size() < 3) {
-            throw std::invalid_argument("Polygon2D requires at least 3 vertices");
-        }
-    }
+    /**
+     * @brief Polygon2Dのコンストラクタ。
+     *
+     * @param vertices_ 多角形の頂点座標のリスト。少なくとも3つの頂点が必要。
+     * @throws std::invalid_argument 頂点数が3未満の場合。
+     */
+    explicit Polygon2D(const std::vector<Vec2>& vertices_);
 
-    const std::vector<Vec2>& getVertices() const {
-        return vertices;
-    }
+    /**
+     * @brief 多角形の頂点座標を取得します。
+     *
+     * @return 頂点座標のリスト。
+     */
+    const std::vector<Vec2>& getVertices() const;
 
-    AABB getAABB() const override {
-        return AABB::fromPoints2D(vertices);
-    }
+    /**
+     * @brief 多角形の軸平行境界ボックス (AABB) を取得します。
+     *
+     * @return AABBオブジェクト。
+     */
+    AABB getAABB() const override;
 
 private:
+    /** @brief 多角形の頂点座標リスト。 */
     const std::vector<Vec2> vertices;
 };
 

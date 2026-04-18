@@ -2,7 +2,6 @@
 #define FASTGEOM3D_POLYLINE_H
 
 #include "fastgeom3d/Shape3D.h"
-#include "fastgeom3d/AABB.h"
 #include "fastgeom3d/Vec3.h"
 #include <vector>
 
@@ -10,25 +9,45 @@ namespace fastgeom3d {
 
 struct UTMCoordinate;
 
+/**
+ * @brief 3Dポリラインを表すクラス。
+ *
+ * Shape3Dを継承し、3D空間における連続した線分を表現します。
+ */
 class Polyline final : public Shape3D {
 public:
-    explicit Polyline(const std::vector<Vec3>& points_) : points(points_) {
-        if (points.size() < 2) {
-            throw std::invalid_argument("Polyline requires at least 2 points");
-        }
-    }
+    /**
+     * @brief Polylineのコンストラクタ。
+     *
+     * @param points_ ポリラインの頂点座標リスト。少なくとも2つの点が必要。
+     * @throws std::invalid_argument 点数が2未満の場合。
+     */
+    explicit Polyline(const std::vector<Vec3>& points_);
 
+    /**
+     * @brief UTM座標のリストからPolylineを作成します。
+     *
+     * @param utmPoints UTM座標のリスト。
+     * @return Polylineオブジェクト。
+     */
     static Polyline fromUTM(const std::vector<UTMCoordinate>& utmPoints);
 
-    const std::vector<Vec3>& getPoints() const {
-        return points;
-    }
+    /**
+     * @brief ポリラインの頂点座標を取得します。
+     *
+     * @return 頂点座標のリスト。
+     */
+    const std::vector<Vec3>& getPoints() const;
 
-    AABB getAABB() const override {
-        return AABB::fromPoints(points);
-    }
+    /**
+     * @brief ポリラインのAABBを取得します。
+     *
+     * @return ポリラインを囲む軸平行境界ボックス。
+     */
+    AABB getAABB() const override;
 
 private:
+    /** @brief ポリラインの頂点座標リスト。 */
     const std::vector<Vec3> points;
 };
 

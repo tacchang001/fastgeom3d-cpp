@@ -7,6 +7,14 @@
             "approve": true,
             "matchCommandLine": true
         },
-        "&": true
+        "&": true,
+        "/^bash -c 'mkdir -p build && cd build && cmake \\.\\. && make'$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^bash -c 'cd build && make clean && make'$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
     }
 }
